@@ -29,20 +29,32 @@ if args.g and args.o:
         print(numFaces)
         # The center vertex
         f.write("v " + "0.0 " + "1.0 " + "0.0\n")
-        #print("v", 0.0, -1.0, 0.0)
+        
         f.write("v " + str(math.cos(radian)) + " 1.0 " + str(math.sin(radian)) + "\n")
-        #print("v", math.cos(radian), -1.0, math.sin(radian))
-        for num in range(1, 32):
+        for num in range(1, args.n):
             radian = radian + ((2 * math.pi) / args.n)
             f.write("v " + str(math.cos(radian)) + " 1.0 " + str(math.sin(radian)) + "\n")
-            #print("v", math.cos(radian), -1.0, math.sin(radian))
       
         # The center vertex
         f.write("v " + "0.0 " + "-1.0 " + "0.0\n")
         f.write("v " + str(math.cos(radian)) + " -1.0 " + str(math.sin(radian)) + "\n")
-        for num in range(1, 32):
+        for num in range(1, args.n):
             radian = radian + ((2 * math.pi) / args.n)
             f.write("v " + str(math.cos(radian)) + " -1.0 " + str(math.sin(radian)) + "\n")
+
+        # Faces: first center is v1, second center is v34
+        # 1 2 3, 1 3 4 ... 1 32 33, 1 2 33 
+        # 34 35 36, 34 36 37 ... 34 65 66, 35 35 66
+        for num in range(2, args.n+1):
+            f.write("f " + "1 " + str(num) + " " + str(num+1) + "\n")
+            if num is args.n: 
+                f.write("f " + "1 " + "2 " + str(num+1) + "\n")
+        # 64 more faces for triangle strip
+        # 2 37 3, 3 38 4 ... 31 66 32, 33 35 2?  
+        for num in range(args.n+3, ((args.n*2)+2)):
+            f.write("f " + str(args.n+2) + " " + str(num) + " " + str(num+1) + "\n")
+            if num is ((args.n*2)+1):
+                f.write("f " + str(args.n+2) + " " + str(args.n+3) + " " + str(num+1) + "\n")
     else:
         print("Invalid geometry (sphere | cylinder)")
 else:
