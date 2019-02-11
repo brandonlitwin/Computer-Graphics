@@ -12,11 +12,69 @@ parser.add_argument("-o", help="output to a file", metavar="Output")
 args = parser.parse_args()
 if args.g and args.o:
     f = open(args.o, "w")
-    print("Selected geometry")
     if args.g == "sphere":
-        print("Generating sphere")
+        # r = 1
+        # longitude = -pi to pi
+        # latitude = -pi/2 to pi/2
+        # x = r * sin(n) * cos(m)
+        # y = r * sin(n) * cos(n)
+        # z = r * cos(n)
+        #longitude_radian = (2 * math.pi) / args.n
+        #latitude_radian = (2 * math.pi) / args.m
+        f.write("v " + "0.0 " + "1.0 " + "0.0\n")
+        for a in range(0, args.m):
+            latitude_radian = (math.pi * (a+1)) / args.m
+            #latitude_radian = (math.pi * ((a+1)/args.m))
+            for b in range(0, args.n):
+                longitude_radian = (2.0 * math.pi * b) / args.n
+                #longitude_radian = (2.0 * math.pi * (b/args.n))
+                f.write("v " + str(math.sin(longitude_radian)*math.cos(latitude_radian)) + " " + str(math.sin(longitude_radian)*math.sin(latitude_radian)) + " " + str(math.cos(longitude_radian)) +"\n")
+
+        f.write("v " + "0.0 " + "-1.0 " + "0.0\n")
+        # Top triangle fan
+        for num in range(2, args.n+1):
+            f.write("f " + "1 " + str(num) + " " + str(num+1) + "\n")
+            if num is args.n: 
+                f.write("f " + "1 " + str(num+1) + " " + "2" + "\n")
+        # Compute number of triangles
+        total_triangles = (2*args.n) + ((2*args.n)*(args.m-1))
+        #(((total - 2*args.n)/2)+2)
+        # Generate the triangle strips
+        # Range is total - 2n because we do not need to calculate the top and bottom fans again
+        for num in range(2, (((total_triangles - 2*args.n)/2)+2)):
+            if ((num-33) % 32) == 0:
+                f.write("f " + str(num) + " " + str(args.n+num) + " " + str(num-(args.n-1)) + "\n")
+                f.write("f " + str(num-(args.n-1)) + " " + str(args.n+num) + " " + str(num+1) + "\n")
+            else:
+                f.write("f " + str(num) + " " + str(args.n+num) + " " + str(num+1) + "\n")
+                f.write("f " + str(num+1) + " " + str(args.n+num) + " " + str(args.n+num+1) + "\n")
+
+
+        total_vertices = ((args.n*args.m)+2)
+        # Bottom triangle fan
+        for num in range(total_vertices-args.n, total_vertices):
+            if num < total_vertices-1:
+                f.write("f " + str(total_vertices) + " " + str(num) + " " + str(num+1) + "\n")
+            else:
+                f.write("f " + str(total_vertices) + " " + str(total_vertices-1) + " " + str(total_vertices-args.n) + "\n")
+
+
+        """f.write("v "+ "0.0 " + "0.5 " + "0.0\n") # The top center vertex
+        for i in range(0, args.m+1):
+            longitude_radian = longitude_radian + ((2 * math.pi) / args.n)
+            for j in range(0, args.n):
+                latitude_radian = latitude_radian + ((2 * math.pi) / args.m)
+                f.write("v " + str(math.sin(longitude_radian)*math.cos(latitude_radian)) + " " + str(math.sin(longitude_radian)*math.cos(longitude_radian)) + " " + str(math.cos(longitude_radian)) + "\n")
+                #longitude_radian = longitude_radian + ((2 * math.pi) / args.n)
+                #latitude_radian = latitude_radian + ((2 * math.pi) / args.m)
+        f.write("v "+ "0.0 " + "-0.5 " + "0.0\n") # The bottom center vertex
+        # Triangle strips
+        # Long n, Lat n, Long n+1; Long n+1, Lat n, Lat n+1; Long n+1, Lat n+1, Long n+2
+        for i in range(2, args.m+1):
+            for j in range(2, args.n):
+                f.write("f " + str(i) + " " + str(j) + " " + str(i+1) + "\n")
+                f.write("f " + str(i+1) + " " + str(j) + " " + str(j+1) + "\n")"""
     elif args.g == "cylinder":
-        print("Generating cylinder")
         numVertices = 2*args.n + 2
         numFaces = 4*args.n
         # Radian divisions = 2pi / n
@@ -26,8 +84,6 @@ if args.g and args.o:
         # Start at (0,1,0)
         # Add 2pi / n and do sin and cos to get z and x
         radian = (2 * math.pi) / args.n
-        print(numVertices)
-        print(numFaces)
         # The center vertex
         f.write("v " + "0.0 " + "1.0 " + "0.0\n")
         
