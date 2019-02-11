@@ -58,22 +58,6 @@ if args.g and args.o:
             else:
                 f.write("f " + str(total_vertices) + " " + str(total_vertices-1) + " " + str(total_vertices-args.n) + "\n")
 
-
-        """f.write("v "+ "0.0 " + "0.5 " + "0.0\n") # The top center vertex
-        for i in range(0, args.m+1):
-            longitude_radian = longitude_radian + ((2 * math.pi) / args.n)
-            for j in range(0, args.n):
-                latitude_radian = latitude_radian + ((2 * math.pi) / args.m)
-                f.write("v " + str(math.sin(longitude_radian)*math.cos(latitude_radian)) + " " + str(math.sin(longitude_radian)*math.cos(longitude_radian)) + " " + str(math.cos(longitude_radian)) + "\n")
-                #longitude_radian = longitude_radian + ((2 * math.pi) / args.n)
-                #latitude_radian = latitude_radian + ((2 * math.pi) / args.m)
-        f.write("v "+ "0.0 " + "-0.5 " + "0.0\n") # The bottom center vertex
-        # Triangle strips
-        # Long n, Lat n, Long n+1; Long n+1, Lat n, Lat n+1; Long n+1, Lat n+1, Long n+2
-        for i in range(2, args.m+1):
-            for j in range(2, args.n):
-                f.write("f " + str(i) + " " + str(j) + " " + str(i+1) + "\n")
-                f.write("f " + str(i+1) + " " + str(j) + " " + str(j+1) + "\n")"""
     elif args.g == "cylinder":
         numVertices = 2*args.n + 2
         numFaces = 4*args.n
