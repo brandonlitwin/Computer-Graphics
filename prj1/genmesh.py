@@ -16,19 +16,17 @@ if args.g and args.o:
         # r = 1
         # longitude = -pi to pi
         # latitude = -pi/2 to pi/2
-        # x = r * sin(n) * cos(m)
-        # y = r * sin(n) * cos(n)
-        # z = r * cos(n)
+        # x = r * sin(m) * cos(n)
+        # y = r * cos(m)
+        # z = r * sin(m) * sin(n)
         #longitude_radian = (2 * math.pi) / args.n
         #latitude_radian = (2 * math.pi) / args.m
         f.write("v " + "0.0 " + "1.0 " + "0.0\n")
         for a in range(0, args.m):
             latitude_radian = (math.pi * (a+1)) / args.m
-            #latitude_radian = (math.pi * ((a+1)/args.m))
             for b in range(0, args.n):
                 longitude_radian = (2.0 * math.pi * b) / args.n
-                #longitude_radian = (2.0 * math.pi * (b/args.n))
-                f.write("v " + str(math.sin(longitude_radian)*math.cos(latitude_radian)) + " " + str(math.sin(longitude_radian)*math.sin(latitude_radian)) + " " + str(math.cos(longitude_radian)) +"\n")
+                f.write("v " + str(math.sin(latitude_radian)*math.cos(longitude_radian)) + " " + str(math.cos(latitude_radian)) + " " + str(math.sin(latitude_radian)*math.sin(longitude_radian)) +"\n")
 
         f.write("v " + "0.0 " + "-1.0 " + "0.0\n")
         # Top triangle fan
@@ -52,6 +50,7 @@ if args.g and args.o:
 
         total_vertices = ((args.n*args.m)+2)
         # Bottom triangle fan
+        #for num in range(total_vertices-args.n, total_vertices):
         for num in range(total_vertices-args.n, total_vertices):
             if num < total_vertices-1:
                 f.write("f " + str(total_vertices) + " " + str(num) + " " + str(num+1) + "\n")
