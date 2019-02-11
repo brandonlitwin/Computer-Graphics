@@ -42,7 +42,7 @@ if args.g and args.o:
         # Generate the triangle strips
         # Range is total - 2n because we do not need to calculate the top and bottom fans again
         for num in range(2, (((total_triangles - 2*args.n)/2)+2)):
-            if ((num-33) % 32) == 0:
+            if ((num-args.n+1) % args.n) == 0:
                 f.write("f " + str(num) + " " + str(args.n+num) + " " + str(num-(args.n-1)) + "\n")
                 f.write("f " + str(num-(args.n-1)) + " " + str(args.n+num) + " " + str(num+1) + "\n")
             else:
