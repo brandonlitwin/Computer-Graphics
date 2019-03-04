@@ -63,10 +63,10 @@ def compute_ray(i,j):
     V = 1
     W = 1
     # The 2's come from the distances x and y (l,r) and (t,b)
-    s = e + u*U + v*V + w*W 
-    d = s - e
-    #direction = u*U + v*V + w*W
-    #d = direction - e
+    #s = e + u*U + v*V + w*W 
+    #d = s - e
+    direction = u*U + v*V + w*W
+    d = direction - e
     #print("first d")
     #print(d)
     #d = u*U + v*V + w*W
@@ -88,16 +88,19 @@ def find_intersection(ray):
         t = (np.dot(-1*d, e-c) + np.sqrt(discriminant)) / np.dot(d,d)
         t2 = (np.dot(-1*d, e-c) - np.sqrt(discriminant)) / np.dot(d,d)
         #print(t)
-        p = e + (t * d)
-        p2 = e + (t2 * d)
-        # p is the point of intersection, we only care about the one that is closer to the eye
-        if (p[0] <= p2[0]):
-            # Compute the normal vector
-            n = 2 * (p-c)
-        else:
-            n = 2 * (p2-c)
-            t = t2
-        return t, n
+        #if (t < 0 and t2 < 0):
+            #print("negative")
+        if (t >= 0 and t2 >= 0):
+            p = e + (t * d)
+            p2 = e + (t2 * d)
+            # p is the point of intersection, we only care about the one that is closer to the eye
+            if (p[0] <= p2[0]):
+                # Compute the normal vector
+                n = 2 * (p-c)
+            else:
+                n = 2 * (p2-c)
+                t = t2
+            return t, n
 
 def evaluate_shading(n):
     i = light_source.color
@@ -106,7 +109,7 @@ def evaluate_shading(n):
     p = (n/2) + sphere.center
     l = p - light_source.position
     #zero_vector = np.array([0.0,0.0,0.0])
-    pixel_color = k#np.array([255,0,0]) #k*i*max(0, np.dot(n,l)))
+    pixel_color = k #*i*max(0, np.dot(n,l))
     return pixel_color
 
 # Instantiate all classes needed for scene
@@ -149,7 +152,7 @@ for i in range(1,height+1):
     #print(pixel_colors)
     #print(pixel_colors.shape)
 
-#print(pixel_colors)
+print(pixel_colors)
 f = open('scene.png', 'wb')      # binary mode is important
 w = png.Writer(width = width, height = height, alpha = 'RGBA')
 w.write_array(f, pixel_colors)
