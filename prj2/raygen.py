@@ -4,9 +4,9 @@ import numpy as np
 import png
 
 e = np.array([0.0, 0.0, 0.0])
-resolution = 720*1280
-width = 1280
-height = 720
+width = 426
+height = 240
+resolution = width*height
 
 # The class definitions
 class HitRecord:
@@ -106,7 +106,7 @@ def evaluate_shading(n):
     p = (n/2) + sphere.center
     l = p - light_source.position
     #zero_vector = np.array([0.0,0.0,0.0])
-    pixel_color = [255,0,0]#np.array([255,0,0]) #k*i*max(0, np.dot(n,l)))
+    pixel_color = k#np.array([255,0,0]) #k*i*max(0, np.dot(n,l)))
     return pixel_color
 
 # Instantiate all classes needed for scene
@@ -118,8 +118,9 @@ scene = Scene(sphere, light_source, [0,0,0])
 # Create array for pixel colors
 #pixel_colors = np.empty([resolution])
 #np.append(pixel_colors, np.array([0,0,0]))
-pixel_colors = []#np.array([0,0,0])
+pixel_colors = []
 for i in range(1,height+1):
+    #pixel_row = []
     for j in range(1, width+1):
         # Create a ray object with origin e and distance that is computed from the compute_ray function
         ray = Ray(e,compute_ray(i,j))
@@ -130,11 +131,17 @@ for i in range(1,height+1):
             hit_record = HitRecord(intersection_time, intersection_normal, sphere_surface)
             #pixel_colors = np.append(pixel_colors, evaluate_shading(intersection_normal)) 
             #np.insert(pixel_colors, count, evaluate_shading(intersection_normal))
-            pixel_colors.append(evaluate_shading(intersection_normal))
+            pixel_colors.append(evaluate_shading(intersection_normal)[0])
+            pixel_colors.append(evaluate_shading(intersection_normal)[1])
+            pixel_colors.append(evaluate_shading(intersection_normal)[2])
+
         else:
             #pixel_colors = np.append(pixel_colors, scene.background_color)
-            pixel_colors.append(scene.background_color)
-            
+            pixel_colors.append(scene.background_color[0])
+            pixel_colors.append(scene.background_color[1])
+            pixel_colors.append(scene.background_color[2])
+    #print(pixel_row)        
+    #pixel_colors.append(pixel_row)
             #np.insert(pixel_colors, count, scene.background_color)
         #count = count + 1
         #print(pixel_colors[count])
@@ -142,6 +149,8 @@ for i in range(1,height+1):
     #print(pixel_colors)
     #print(pixel_colors.shape)
 
-
-print(pixel_colors)
-
+#print(pixel_colors)
+f = open('scene.png', 'wb')      # binary mode is important
+w = png.Writer(width = width, height = height, alpha = 'RGBA')
+w.write_array(f, pixel_colors)
+f.close()
