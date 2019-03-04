@@ -66,7 +66,8 @@ def compute_ray(i,j):
     #s = e + u*U + v*V + w*W 
     #d = s - e
     direction = u*U + v*V + w*W
-    d = direction - e
+    #d = direction - e
+    d = (u,v,direction)
     #print("first d")
     #print(d)
     #d = u*U + v*V + w*W
@@ -85,22 +86,21 @@ def find_intersection(ray):
     #print(discriminant)
     # A negative discriminant means no intersections
     if discriminant >= 0:
-        t = (np.dot(-1*d, e-c) + np.sqrt(discriminant)) / np.dot(d,d)
-        t2 = (np.dot(-1*d, e-c) - np.sqrt(discriminant)) / np.dot(d,d)
-        #print(t)
-        #if (t < 0 and t2 < 0):
-            #print("negative")
-        if (t >= 0 and t2 >= 0):
-            p = e + (t * d)
-            p2 = e + (t2 * d)
-            # p is the point of intersection, we only care about the one that is closer to the eye
-            if (p[0] <= p2[0]):
+        #print(np.multiply(-1,d))
+        t = (np.dot(np.multiply(-1,d), e-c) + np.sqrt(discriminant)) / np.dot(d,d)
+        t2 = (np.dot(d, e-c) - np.sqrt(discriminant)) / np.dot(d,d)
+        #if (t >= 0 and t2 >= 0):
+            #print("here")
+        p = e + (np.dot(t,d))
+        p2 = e + (np.dot(t2,d))
+        # p is the point of intersection, we only care about the one that is closer to the eye
+        if (p[0] <= p2[0]):
                 # Compute the normal vector
-                n = 2 * (p-c)
-            else:
-                n = 2 * (p2-c)
-                t = t2
-            return t, n
+             n = 2 * (p-c)
+        else:
+            n = 2 * (p2-c)
+            t = t2
+        return t, n
 
 def evaluate_shading(n):
     i = light_source.color
@@ -114,7 +114,7 @@ def evaluate_shading(n):
 
 # Instantiate all classes needed for scene
 light_source = Light(np.array([1.0,5.0,1.0]), np.array([255,255,255]))
-sphere_material = Material(np.array([255, 100, 100]), 1)
+sphere_material = Material([255, 100, 100], 1)
 sphere_surface = Surface(sphere_material)
 sphere = Sphere(sphere_surface, np.array([0.0,0.0,-2.0]), 1.0)
 scene = Scene(sphere, light_source, [1,1,1]) 
@@ -147,14 +147,8 @@ for i in range(1,height+1):
         #pixel_row.append(pixel)
     #print(pixel_row)        
     #pixel_colors.append(pixel_row)
-            #np.insert(pixel_colors, count, scene.background_color)
-        #count = count + 1
-        #print(pixel_colors[count])
-    #print(i)
-    #print(pixel_colors)
-    #print(pixel_colors.shape)
 
-print(len(pixel_colors))
+print(pixel_colors)
 #png.from_array(pixel_colors, 'RGB').save('scene.png')
 f = open('scene.png', 'wb')      # binary mode is important
 w = png.Writer(width = width, height = height, alpha = 'RGBA')
