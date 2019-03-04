@@ -56,12 +56,22 @@ def compute_ray(i,j):
     r = 1
     t = 1
     b = -1
-    u = l + (r-l) * ((i+0.5)/width)
-    v = b + (t-b) * ((j+0.5)/height)
+    u = l + (((r-l) * (i+0.5)) / width)
+    v = b + (((t-b) * (j+0.5)) / height)
     w = -1 # point behind the eye
+    U = 1
+    V = 1
+    W = 1
     # The 2's come from the distances x and y (l,r) and (t,b)
-    s = e + 2*u + 2*v + w 
+    s = e + u*U + v*V + w*W 
     d = s - e
+    #direction = u*U + v*V + w*W
+    #d = direction - e
+    #print("first d")
+    #print(d)
+    #d = u*U + v*V + w*W
+    #print("second d")
+    #print(d)
     return d
 
 def find_intersection(ray):
@@ -71,10 +81,13 @@ def find_intersection(ray):
     r = sphere.radius
 
     discriminant = np.square(np.dot(d, e-c)) - (np.dot(d,d) * (np.dot(e-c, e-c)) - (r * r))
+    #print("discr")
+    #print(discriminant)
     # A negative discriminant means no intersections
     if discriminant >= 0:
-        t = (np.dot(-d, e-c) + np.sqrt(discriminant)) / np.dot(d,d)
-        t2 = (np.dot(-d, e-c) - np.sqrt(discriminant)) / np.dot(d,d)
+        t = (np.dot(-1*d, e-c) + np.sqrt(discriminant)) / np.dot(d,d)
+        t2 = (np.dot(-1*d, e-c) - np.sqrt(discriminant)) / np.dot(d,d)
+        #print(t)
         p = e + (t * d)
         p2 = e + (t2 * d)
         # p is the point of intersection, we only care about the one that is closer to the eye
@@ -93,7 +106,7 @@ def evaluate_shading(n):
     p = (n/2) + sphere.center
     l = p - light_source.position
     #zero_vector = np.array([0.0,0.0,0.0])
-    pixel_color = k*i*max(0, np.dot(n,l)))
+    pixel_color = [255,0,0]#np.array([255,0,0]) #k*i*max(0, np.dot(n,l)))
     return pixel_color
 
 # Instantiate all classes needed for scene
@@ -101,10 +114,11 @@ light_source = Light(np.array([1.0,5.0,1.0]), np.array([255,255,255]))
 sphere_material = Material(np.array([255, 0, 0]), 1)
 sphere_surface = Surface(sphere_material)
 sphere = Sphere(sphere_surface, np.array([0.0,0.0,-2.0]), 1.0)
-scene = Scene(sphere, light_source, np.array([0,0,0])) 
+scene = Scene(sphere, light_source, [0,0,0]) 
 # Create array for pixel colors
-pixel_colors = np.empty([resolution])
-
+#pixel_colors = np.empty([resolution])
+#np.append(pixel_colors, np.array([0,0,0]))
+pixel_colors = []#np.array([0,0,0])
 for i in range(1,height+1):
     for j in range(1, width+1):
         # Create a ray object with origin e and distance that is computed from the compute_ray function
@@ -114,8 +128,20 @@ for i in range(1,height+1):
             intersection_time = ray_intersection[0]
             intersection_normal = ray_intersection[1]
             hit_record = HitRecord(intersection_time, intersection_normal, sphere_surface)
-            np.append(pixel_colors, evaluate_shading(intersection_normal)) 
+            #pixel_colors = np.append(pixel_colors, evaluate_shading(intersection_normal)) 
+            #np.insert(pixel_colors, count, evaluate_shading(intersection_normal))
+            pixel_colors.append(evaluate_shading(intersection_normal))
         else:
-            np.append(pixel_colors, scene.background_color)
+            #pixel_colors = np.append(pixel_colors, scene.background_color)
+            pixel_colors.append(scene.background_color)
+            
+            #np.insert(pixel_colors, count, scene.background_color)
+        #count = count + 1
+        #print(pixel_colors[count])
+    #print(i)
+    #print(pixel_colors)
+    #print(pixel_colors.shape)
 
+
+print(pixel_colors)
 
