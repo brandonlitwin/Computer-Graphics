@@ -4,8 +4,8 @@ import numpy as np
 import png
 
 e = np.array([0.0, 0.0, 0.0])
-width = 426
-height = 240
+width = 1280
+height = 720
 resolution = width*height
 
 # The class definitions
@@ -114,10 +114,10 @@ def evaluate_shading(n):
 
 # Instantiate all classes needed for scene
 light_source = Light(np.array([1.0,5.0,1.0]), np.array([255,255,255]))
-sphere_material = Material(np.array([255, 0, 0]), 1)
+sphere_material = Material(np.array([255, 100, 100]), 1)
 sphere_surface = Surface(sphere_material)
 sphere = Sphere(sphere_surface, np.array([0.0,0.0,-2.0]), 1.0)
-scene = Scene(sphere, light_source, [0,0,0]) 
+scene = Scene(sphere, light_source, [1,1,1]) 
 # Create array for pixel colors
 #pixel_colors = np.empty([resolution])
 #np.append(pixel_colors, np.array([0,0,0]))
@@ -125,6 +125,7 @@ pixel_colors = []
 for i in range(1,height+1):
     #pixel_row = []
     for j in range(1, width+1):
+        #pixel = []
         # Create a ray object with origin e and distance that is computed from the compute_ray function
         ray = Ray(e,compute_ray(i,j))
         ray_intersection = find_intersection(ray)
@@ -143,6 +144,7 @@ for i in range(1,height+1):
             pixel_colors.append(scene.background_color[0])
             pixel_colors.append(scene.background_color[1])
             pixel_colors.append(scene.background_color[2])
+        #pixel_row.append(pixel)
     #print(pixel_row)        
     #pixel_colors.append(pixel_row)
             #np.insert(pixel_colors, count, scene.background_color)
@@ -152,7 +154,8 @@ for i in range(1,height+1):
     #print(pixel_colors)
     #print(pixel_colors.shape)
 
-print(pixel_colors)
+print(len(pixel_colors))
+#png.from_array(pixel_colors, 'RGB').save('scene.png')
 f = open('scene.png', 'wb')      # binary mode is important
 w = png.Writer(width = width, height = height, alpha = 'RGBA')
 w.write_array(f, pixel_colors)
