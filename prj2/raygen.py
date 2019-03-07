@@ -115,7 +115,6 @@ def find_intersection(ray):
 
         # p is the point of intersection, we only care about the one that is closer to the eye
         if p is not None:
-				
             if p2 is not None:
                 if p[0] <= p2[0]:
 		    #print(p)
@@ -141,29 +140,42 @@ def find_intersection(ray):
 def evaluate_shading(n, intersecting_sphere):
     i = light_source.color
     ki = intersecting_sphere.surface.material.color 
+    ks = [211,211,211] # light gray
     # l is the vector pointing from p to the light
-    p = (n/2) + sphere.center
-    l = p - light_source.position
+    p = (n/2) + intersecting_sphere.center
+    l = np.array(light_source.position - p)
+    phong = intersecting_sphere.surface.material.shininess
+    v = np.array(e)
+    #normalized_v = v / np.sqrt(np.sum(v**2)) 
+    normalized_l_v = np.sqrt(np.sum(np.square(l+v)))
+
+    h = (v + l) / (normalized_l_v)
+    intensity = 20
     """shaded_color = [] 
     shaded_color.append(k[0] * i[0])
     shaded_color.append(k[1] * i[1])
     shaded_color.append(k[2] * i[2])
     print(shaded_color)"""
-    pixel_color = ki #*i*max(0, np.dot(n,l)) + ks * i * np.power(max(0, np.dot(n,h))),p)
+    #print(np.dot(n,h))
+    #pixel_color = ki#*i*max(0, np.dot(n,l)) #+ ks * i * np.power(max(0, np.dot(n,h))),phong)
+    pixel_red = int((ki[0]/255) * intensity * max(0, np.dot(n,l))) + int((ks[0]/255)*intensity*np.power(max(0, np.dot(n,h)),phong))
+    pixel_blue = int((ki[1]/255) * intensity * max(0, np.dot(n,l))) + int((ks[1]/255)*intensity*np.power(max(0, np.dot(n,h)),phong))
+    pixel_green = int((ki[2]/255) * intensity * max(0, np.dot(n,l))) + int((ks[2]/255)*intensity*np.power(max(0, np.dot(n,h)),phong))
+    pixel_color = [pixel_red, pixel_blue, pixel_green]
     #KdId = (rk x rI, gK x gI, bk x bI)
     #print(pixel_color)
     return pixel_color
 
 # Instantiate all classes needed for scene
-light_source = Light(np.array([1.0,5.0,1.0]), np.array([255,255,255]))
-sphere_material = Material([255, 0, 0], 1)
-sphere2_material = Material([0, 0, 255], 1)
+light_source = Light(np.array([1.0,1.0,1.0]), np.array([255,255,255]))
+sphere_material = Material([255, 0, 0], 10)
+sphere2_material = Material([0, 0, 255], 10)
 sphere_surface = Surface(sphere_material)
 sphere2_surface = Surface(sphere2_material)
-sphere = Sphere(sphere_surface, np.array([0.0,0.0,-5.0]), 1.0)
-sphere2 = Sphere(sphere2_surface, np.array([-0.5,-0.5,-5.0]), 1.0)
+sphere = Sphere(sphere_surface, np.array([-1.0,0.0,-3.0]), 1.0)
+sphere2 = Sphere(sphere2_surface, np.array([-0.5,-0.5,-6.0]), 1.0)
 group = Group([sphere.surface, sphere2.surface])
-scene = Scene(group, light_source, [0,0,0])
+scene = Scene(group, light_source, [255,255,255])
 #print(scene.object_list.surface[1].material.color)
 # Create array for pixel colors
 #pixel_colors = np.empty([resolution])
@@ -197,8 +209,7 @@ for i in range(1,height+1):
         #pixel_row.append(pixel)
     #print(pixel_row)        
     #pixel_colors.append(pixel_row)
-#import pprint
-#pprint.pprint(pixel_colors)
+
 #print(pixel_colors)
 #print(len(pixel_colors[0]))
 #print(len(pixel_colors[0][0]))
