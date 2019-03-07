@@ -59,15 +59,17 @@ def compute_ray(i,j):
     u = l + (((r-l) * (i+0.5)) / width)
     v = b + (((t-b) * (j+0.5)) / height)
     w = -1 # point behind the eye
-    U = 1
-    V = 1
-    W = 1
+    U = (1,0,0)
+    V = (0,1,0)
+    W = (0,0,1)
     #s = e + u*U + v*V + w*W 
     #d = s - e
     #d = (0,0,-1)
-    direction = u*U + v*V + w*W
+    #direction = u*U + v*V + w*W
+		#         = (u,0,0) + (0,v,0) + (0,0,w)
+		#         = (u,v,w)
     #d = direction - e
-    d = (u,v,direction)
+    d = (u,v,w)
     #print("first d")
     #print(d)
     #d = u*U + v*V + w*W
@@ -83,8 +85,8 @@ def find_intersection(ray):
     c2 = sphere2.center
     r2 = sphere2.radius
 
-    discriminant = np.square(np.dot(d, e-c)) - (np.dot(d,d) * (np.dot(e-c, e-c)) - (r * r))
-    discriminant2 = np.square(np.dot(d, e-c2)) - (np.dot(d,d) * (np.dot(e-c2, e-c2)) - (r2 * r2))
+    discriminant = np.square(np.dot(d, e-c)) - (np.dot(d,d) * (np.dot(e-c, e-c) - (r * r)))
+    discriminant2 = np.square(np.dot(d, e-c2)) - (np.dot(d,d) * (np.dot(e-c2, e-c2) - (r2 * r2)))
     #print("discr")
     # A negative discriminant means no intersections
     if discriminant >= 0 or discriminant2 >= 0:
@@ -101,23 +103,26 @@ def find_intersection(ray):
             t2_2 = (np.dot(np.multiply(-1,d), e-c2) - np.sqrt(discriminant2)) / np.dot(d,d)
         if t is not None:
             if t < t2:
-                p = e + (np.dot(t,d))
+                p = e + (np.multiply(t,d))
             else:
-                p = e + (np.dot(t2,d))
+                p = e + (np.multiply(t2,d))
 
         if t_2 is not None:
             if t_2 < t2_2:
-                p2 = e + (np.dot(t_2,d))
+                p2 = e + (np.multiply(t_2,d))
             else:
-                p2 = e + (np.dot(t2_2,d))
+                p2 = e + (np.multiply(t2_2,d))
 
         # p is the point of intersection, we only care about the one that is closer to the eye
         if p is not None:
+				
             if p2 is not None:
                 if p[0] <= p2[0]:
-                # Compute the normal vector
-                    n = 2 * (p-c)
+		    #print(p)
+                 # Compute the normal vector
+		    n = 2 * (p-c)
                 else:
+		    #print(p2)
                     n = 2 * (p2-c2)
                     t = t2
             else:
@@ -126,6 +131,7 @@ def find_intersection(ray):
                     t = t2
             return t, n, sphere
         elif p2 is not None:
+            #print(p2)
             n = 2 * (p2-c2)
             if t2_2 < t_2:
                 t_2 = t2_2
@@ -134,7 +140,7 @@ def find_intersection(ray):
 
 def evaluate_shading(n, intersecting_sphere):
     i = light_source.color
-    k = intersecting_sphere.surface.material.color 
+    ki = intersecting_sphere.surface.material.color 
     # l is the vector pointing from p to the light
     p = (n/2) + sphere.center
     l = p - light_source.position
@@ -143,7 +149,7 @@ def evaluate_shading(n, intersecting_sphere):
     shaded_color.append(k[1] * i[1])
     shaded_color.append(k[2] * i[2])
     print(shaded_color)"""
-    pixel_color = k #*i*max(0, np.dot(n,l))
+    pixel_color = ki #*i*max(0, np.dot(n,l)) + ks * i * np.power(max(0, np.dot(n,h))),p)
     #KdId = (rk x rI, gK x gI, bk x bI)
     #print(pixel_color)
     return pixel_color
@@ -155,7 +161,7 @@ sphere2_material = Material([0, 0, 255], 1)
 sphere_surface = Surface(sphere_material)
 sphere2_surface = Surface(sphere2_material)
 sphere = Sphere(sphere_surface, np.array([0.0,0.0,-5.0]), 1.0)
-sphere2 = Sphere(sphere2_surface, np.array([-1.0,0.0,-5.0]), 1.0)
+sphere2 = Sphere(sphere2_surface, np.array([-0.5,-0.5,-5.0]), 1.0)
 group = Group([sphere.surface, sphere2.surface])
 scene = Scene(group, light_source, [0,0,0])
 #print(scene.object_list.surface[1].material.color)
