@@ -88,7 +88,7 @@ def find_intersection(ray,object):
 
 def evaluate_shading(p, n, intersecting_sphere):
     ki = intersecting_sphere.surface.material.color 
-    ks = [255,255,255] # light gray
+    ks = [255,255,255] 
     
     n = (p-intersecting_sphere.center) / intersecting_sphere.radius
     l = np.array(light_source.position - p)
