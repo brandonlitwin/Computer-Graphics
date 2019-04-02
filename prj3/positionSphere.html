@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>WebGL / GLSL - Simple Uniform Shading</title>
+    <meta charset="utf-8"/>
+    <script id="vertex-shader" type="x-shader/x-vertex">
+attribute vec4 vPosition;
+attribute vec4 vNormal;
+
+// TODO Declare varying attribute to pass vertex color to fragment shader
+varying vec4 fColor;
+// TODO Declare uniform variables to get surface properties from the application
+uniform vec4 ambientProduct;
+uniform vec4 diffuseProduct;
+uniform vec4 specularProduct;
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform vec4 lightPosition;
+uniform float shininess;
+
+void main() {
+    vec3 pos = (modelViewMatrix * vPosition).xyz;
+	float red = 0.0;
+	float green = 0.0;
+	float blue = 0.0;
+	//float old_value = pos.x;
+	float old_min = -1.0;
+	float old_max = 1.0;
+	float new_min = 0.0;
+	float new_max = 1.0;
+	red = ( (pos.x - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min;
+	green = ( (pos.y - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min;
+	blue = ( (pos.z - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min;
+	/*if (pos.x < 0.0) {
+		red = 0.0;
+	} else {
+		red = 1.0;
+	}
+	
+	if (pos.y < 0.0) {
+		green = 0.0;
+	} else {
+		green = 1.0;
+	}
+	
+	if (pos.z < 0.0) {
+		blue = 0.0;
+	} else {
+		blue = 1.0;
+	}*/
+	
+
+    gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+
+	fColor.x = red;
+	fColor.y = green;
+	fColor.z = blue;
+    fColor.a = 1.0; // just to make certain...
+}
+    </script>
+    <script id="fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+varying vec4 fColor;
+
+void main() {
+    gl_FragColor = fColor;
+}
+    </script>
+  </head>
+  <body>
+    <p> </p>
+    <button id = "Button0">Increase R</button>
+    <button id = "Button1">Decrease R</button>
+
+    <p> </p>
+    <button id = "Button2">Increase theta</button>
+    <button id = "Button3">Decrease theta</button>
+    <button id = "Button4">Increase phi</button>
+    <button id = "Button5">Decrease phi</button>
+
+    <p> </p>
+    <button id = "Button6">Increase Subdivisions</button>
+    <button id = "Button7">Decrease Subdivisions</button>
+
+    <p></p>
+    <script type="text/javascript" src="Common/webgl-utils.js"></script>
+    <script type="text/javascript" src="Common/initShaders.js"></script>
+    <script type="text/javascript" src="Common/MV.js"></script>
+    <script type="text/javascript" src="sphere.js"></script>
+
+    <canvas id="gl-canvas" width="720" height="720">
+      Oops ... your browser doesn't support the HTML5 canvas element
+    </canvas>
+  </body>
+</html>
+
