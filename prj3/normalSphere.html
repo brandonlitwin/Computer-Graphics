@@ -20,6 +20,7 @@ uniform float shininess;
 
 void main() {
     vec3 pos = (modelViewMatrix * vPosition).xyz;
+	vec3 N = normalize( (modelViewMatrix*vNormal).xyz);
 	float red = 0.0;
 	float green = 0.0;
 	float blue = 0.0;
@@ -27,9 +28,9 @@ void main() {
 	float old_max = 1.0;
 	float new_min = 0.0;
 	float new_max = 1.0;
-	red = ( (pos.x - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min;
-	green = ( (pos.y - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min;
-	blue = ( (pos.z - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min;
+	red = ( (N.x - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min;
+	green = ( (N.y - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min;
+	blue = ( (N.z - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min;
 	
 
     gl_Position = projectionMatrix * modelViewMatrix * vPosition;
