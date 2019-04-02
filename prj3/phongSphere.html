@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>WebGL / GLSL - Simple Uniform Shading</title>
+    <meta charset="utf-8"/>
+    <script id="vertex-shader" type="x-shader/x-vertex">
+attribute vec4 vPosition;
+attribute vec4 vNormal;
+
+// TODO Declare varying attributes to pass required vectors to fragment shader
+varying vec3 N;
+varying vec3 E;
+varying vec3 L;
+
+uniform mat4 modelViewMatrix;
+uniform mat4 projectionMatrix;
+uniform vec4 lightPosition;
+
+void main() {
+    vec3 pos = (modelViewMatrix * vPosition).xyz;
+    vec3 light = lightPosition.xyz;
+
+    // Transform vertex normal into eye coordinates
+    N = normalize( (modelViewMatrix*vNormal).xyz);
+
+    L = normalize( light - pos ).xyz;
+    E = normalize( -pos ).xyz;
+
+    gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+
+precision mediump float;
+
+// TODO Declare varying attributes to get required vectors from vertex shader
+varying vec3 L;
+varying vec3 E;
+varying vec3 N;
+
+// TODO Declare uniform variables to get surface properties from the application
+uniform vec4 ambientProduct;
+uniform vec4 diffuseProduct;
+uniform vec4 specularProduct;
+uniform float shininess;
+
+void main() {
+    vec4 fColor;
+
+    vec3 H = normalize( E+L ).xyz;
+
+    // Compute terms in the illumination equation
+    vec4 ambient = ambientProduct;
+	float Kd = max( dot(L, N), 0.0 );
+    vec4  diffuse = Kd*diffuseProduct;
+	float Ks = pow( max(dot(N, H), 0.0), shininess );
+    vec4  specular = Ks * specularProduct;
+
+    if( dot(L, N) < 0.0 ) specular = vec4(0.0, 0.0, 0.0, 1.0);
+
+    fColor = ambient+diffuse+specular;
+    fColor.a = 1.0;
+
+    gl_FragColor = fColor;
+}
+    </script>
+  </head>
+  <body>
+    <p> </p>
+    <button id = "Button0">Increase R</button>
+    <button id = "Button1">Decrease R</button>
+
+    <p> </p>
+    <button id = "Button2">Increase theta</button>
+    <button id = "Button3">Decrease theta</button>
+    <button id = "Button4">Increase phi</button>
+    <button id = "Button5">Decrease phi</button>
+
+    <p> </p>
+    <button id = "Button6">Increase Subdivisions</button>
+    <button id = "Button7">Decrease Subdivisions</button>
+
+    <p></p>
+
+    <script type="text/javascript" src="Common/webgl-utils.js"></script>
+    <script type="text/javascript" src="Common/initShaders.js"></script>
+    <script type="text/javascript" src="Common/MV.js"></script>
+    <script type="text/javascript" src="sphere.js"></script>
+
+    <canvas id="gl-canvas" width="720" height="720">
+      Oops ... your browser doesn't support the HTML5 canvas element
+    </canvas>
+  </body>
+</html>
+
