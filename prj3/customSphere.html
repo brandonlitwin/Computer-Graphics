@@ -57,7 +57,7 @@ float cnoise(vec2 P){
 
 void main() {
     vec3 pos = (modelViewMatrix * vPosition).xyz;
-	vec2 newPos = vec2(acos(pos.z/2.0),atan(pos.y/pos.x));
+	vec2 newPos = vec2(acos(vPosition.z/2.0),atan(vPosition.y/vPosition.x));
 	
 	float noise = cnoise(newPos);
 	float red = 0.0;
