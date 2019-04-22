@@ -1,0 +1,131 @@
+<!doctype html>
+
+<html lang="en">
+
+	<head>
+		
+		<title>WebGL / GLSL - Simple Texture Mapping</title>
+		
+		<meta charset="utf-8"/>
+
+		<script id="vertex-shader" type="x-shader/x-vertex">
+		
+			/*
+			attribute vec4 aVertexPosition;
+			attribute vec2 aTextureCoord;
+
+			uniform mat4 uModelViewMatrix;
+			uniform mat4 uProjectionMatrix;
+
+			varying highp vec2 vTextureCoord;
+
+			void main(void) {
+				gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+				vTextureCoord = aTextureCoord;
+			}
+			*/
+			
+			attribute vec4 vPosition;
+
+			uniform mat4 modelViewMatrix;
+			uniform mat4 projectionMatrix;
+
+			varying float s, t;
+			attribute vec4 vColor;
+			uniform int chosenMap;
+			varying vec4 fColor;
+			uniform vec4 colorVec;
+			
+			void main() {
+
+				if(chosenMap==0) {
+					//    s= 0.5*acos(vPosition.x)/pi;
+					vec4 ee=normalize(vPosition);
+					s=ee.y;
+					//  t = 0.5*asin(vPosition.y/sqrt(1.0-vPosition.x*vPosition.x))/pi;
+					t=ee.x;
+						
+				}	else {
+				
+					float pi = acos(0.0);
+					s= 0.5*acos(vPosition.x)/pi;
+					//vec4 ee=normalize(vPosition);
+					//s=ee.y;
+					t = 0.5*asin(vPosition.y/sqrt(1.0-vPosition.x*vPosition.x))/pi;
+					//t=ee.x;
+
+				}
+			
+			gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+			fColor = colorVec;
+
+			}
+		
+		</script>
+
+		<script id="fragment-shader" type="x-shader/x-fragment">
+		
+			/*
+		
+			varying highp vec2 vTextureCoord;
+
+			uniform sampler2D uSampler;
+
+			void main(void) {
+				gl_FragColor = texture2D(uSampler, vTextureCoord);
+			}
+			
+			*/
+		
+			precision mediump float;
+
+			varying float s, t;
+			uniform sampler2D texture;
+			varying vec4 fColor;
+
+			void main() {
+
+				gl_FragColor = fColor*texture2D( texture, vec2(s, t));
+				//  gl_FragColor = texture2D( texture, vec2(s, t));
+			
+			}
+		
+		</script>
+
+	</head>
+
+	<body>
+	
+		<p> </p>
+	
+		<button id = "Button0">Increase R</button>
+		<button id = "Button1">Decrease R</button>
+
+		<p> </p>
+		
+		<button id = "Button2">Increase theta</button>
+		<button id = "Button3">Decrease theta</button>
+		<button id = "Button4">Increase phi</button>
+		<button id = "Button5">Decrease phi</button>
+
+		<p> </p>
+		
+		<button id = "Button6">Increase Subdivisions</button>
+		<button id = "Button7">Decrease Subdivisions</button>
+
+		<p></p>
+		
+		<img id = "texImage" src = "wavytex.jpg" crossOrigin="anonymous" hidden></img>
+
+		<script type="text/javascript" src="Common/webgl-utils.js"></script>
+		<script type="text/javascript" src="Common/initShaders.js"></script>
+		<script type="text/javascript" src="Common/MV.js"></script>
+		<script type="text/javascript" src="sphere.js"></script>
+
+		<canvas id="gl-canvas" width="720" height="720">
+		Oops ... your browser doesn't support the HTML5 canvas element
+		</canvas>
+
+	</body>
+
+</html>
