@@ -9,52 +9,36 @@
 		<meta charset="utf-8"/>
 
 		<script id="vertex-shader" type="x-shader/x-vertex">
-		
-			/*
-			attribute vec4 aVertexPosition;
-			attribute vec2 aTextureCoord;
-
-			uniform mat4 uModelViewMatrix;
-			uniform mat4 uProjectionMatrix;
-
-			varying highp vec2 vTextureCoord;
-
-			void main(void) {
-				gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-				vTextureCoord = aTextureCoord;
-			}
-			*/
 			
 			attribute vec4 vPosition;
-
+			attribute vec4 vNormal;
 			uniform mat4 modelViewMatrix;
 			uniform mat4 projectionMatrix;
+			uniform vec4 lightPosition;
 
 			varying float s, t;
 			attribute vec4 vColor;
 			uniform int chosenMap;
 			varying vec4 fColor;
 			uniform vec4 colorVec;
+			varying vec3 N;
+			varying vec3 L;
+			varying vec3 E;
 			
 			void main() {
 
-				if(chosenMap==0) {
-					//    s= 0.5*acos(vPosition.x)/pi;
-					vec4 ee=normalize(vPosition);
-					s=ee.y;
-					//  t = 0.5*asin(vPosition.y/sqrt(1.0-vPosition.x*vPosition.x))/pi;
-					t=ee.x;
-						
-				}	else {
+				vec3 pos = (modelViewMatrix * vPosition).xyz;
+				vec3 light = lightPosition.xyz;
 				
-					float pi = acos(0.0);
-					s= 0.5*acos(vPosition.x)/pi;
-					//vec4 ee=normalize(vPosition);
-					//s=ee.y;
-					t = 0.5*asin(vPosition.y/sqrt(1.0-vPosition.x*vPosition.x))/pi;
-					//t=ee.x;
-
-				}
+				N = normalize((modelViewMatrix * vNormal).xyz);
+				L = normalize(light - pos).xyz;
+				E = normalize(-pos).xyz;
+				
+				float pi = radians(180.0);
+				t = (pi - acos(vPosition.z / 1.0)) / pi;
+				s = (pi + atan(vPosition.y / vPosition.x)) / (2.0 * pi);
+				
+				
 			
 			gl_Position = projectionMatrix * modelViewMatrix * vPosition;
 			fColor = colorVec;
@@ -64,28 +48,47 @@
 		</script>
 
 		<script id="fragment-shader" type="x-shader/x-fragment">
-		
-			/*
-		
-			varying highp vec2 vTextureCoord;
-
-			uniform sampler2D uSampler;
-
-			void main(void) {
-				gl_FragColor = texture2D(uSampler, vTextureCoord);
-			}
-			
-			*/
-		
 			precision mediump float;
+			varying vec3 N;
+			varying vec3 L;
+			varying vec3 E;
+			uniform vec4 ambientProduct;
+			uniform vec4 diffuseProduct;
+			uniform vec4 specularProduct;
+			uniform float shininess;
+		
+			
 
 			varying float s, t;
 			uniform sampler2D texture;
 			varying vec4 fColor;
 
 			void main() {
+				vec4 fColor;
+				vec3 perturbedN;
+				vec3 H;
 
-				gl_FragColor = fColor*texture2D( texture, vec2(s, t));
+				perturbedN = texture2D(texture, vec2(s, t)).rgb;
+				perturbedN = normalize(N) + perturbedN;
+				perturbedN = normalize(perturbedN);
+				
+				H = normalize( E+L ).xyz;
+
+				// Compute terms in the illumination equation
+				vec4 ambient = ambientProduct;
+				float Kd = max( dot(L, perturbedN), 0.0 );
+				vec4  diffuse = Kd*diffuseProduct;
+				float Ks = pow( max(dot(perturbedN, H), 0.0), shininess );
+				vec4  specular = Ks * specularProduct;
+
+				if( dot(L, perturbedN) < 0.0 ) specular = vec4(0.0, 0.0, 0.0, 1.0);
+
+				fColor = ambient+diffuse+specular;
+				fColor.a = 1.0;
+
+				gl_FragColor = fColor;
+
+				//gl_FragColor = fColor*texture2D( texture, vec2(s, t));
 				//  gl_FragColor = texture2D( texture, vec2(s, t));
 			
 			}
@@ -115,7 +118,7 @@
 
 		<p></p>
 		
-		<img id = "texImage" src = "wavytex.jpg" crossOrigin="anonymous" hidden></img>
+		<img id = "texImage" src = "normalmap.png" crossOrigin="anonymous" hidden></img>
 
 		<script type="text/javascript" src="Common/webgl-utils.js"></script>
 		<script type="text/javascript" src="Common/initShaders.js"></script>
